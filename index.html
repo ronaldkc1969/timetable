@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>令和8年度 社会福祉学科 時間割</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Hiragino Sans', 'Meiryo', sans-serif; background: #f0f4f8; color: #333; }
+
+/* ── ヘッダー ── */
+.header {
+  background: linear-gradient(135deg, #1a3a5c, #2a6496);
+  color: white;
+  padding: 18px 24px 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.header h1 { font-size: 1.35rem; font-weight: 700; letter-spacing: 0.04em; }
+.header p  { font-size: 0.8rem; opacity: 0.75; margin-top: 4px; }
+
+/* ── 学年タブ ── */
+.year-tabs {
+  display: flex;
+  background: #1a3a5c;
+  padding: 0 16px;
+  gap: 4px;
+}
+.year-tab {
+  padding: 10px 28px;
+  cursor: pointer;
+  color: rgba(255,255,255,0.6);
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 6px 6px 0 0;
+  transition: all 0.2s;
+  border: none;
+  background: transparent;
+}
+.year-tab:hover { color: white; background: rgba(255,255,255,0.1); }
+.year-tab.active { background: #f0f4f8; color: #1a3a5c; }
+
+/* ── 学期タブ ── */
+.term-bar {
+  display: flex;
+  align-items: center;
+  background: #eef3f8;
+  border-bottom: 2px solid #d0dcea;
+  padding: 0 20px;
+}
+.term-label { font-size: 0.78rem; color: #6a7f96; font-weight: 600; margin-right: 12px; }
+.term-tab {
+  padding: 8px 26px;
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 700;
+  border: none;
+  background: transparent;
+  color: #6a7f96;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s;
+}
+.term-tab:hover { color: #2a6496; }
+.term-tab.active-spring { color: #c0392b; border-bottom-color: #c0392b; background: rgba(192,57,43,0.06); }
+.term-tab.active-autumn { color: #2c5282; border-bottom-color: #2c5282; background: rgba(44,82,130,0.06); }
+
+/* ── レジェンド ── */
+.content { padding: 18px 20px; }
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+  background: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  align-items: center;
+}
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.74rem; color: #555; }
+.legend-dot  { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+.legend-sep  { width: 1px; height: 18px; background: #ddd; margin: 0 4px; }
+.new-badge-legend {
+  display: inline-flex; align-items: center; gap: 3px;
+  background: #fff3cd; border: 1.5px solid #f0b429;
+  color: #856404; font-size: 0.68rem; font-weight: 800;
+  padding: 1px 6px; border-radius: 10px;
+}
+
+/* ── テーブル ── */
+.timetable-wrapper {
+  overflow-x: auto;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  margin-bottom: 18px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 700px;
+}
+
+/* 列ヘッダー（時限） */
+thead th {
+  background: #1a3a5c;
+  color: white;
+  text-align: center;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+  padding: 0;
+}
+thead th.day-col-header { width: 54px; background: #0f2540; }
+thead th.period-col {
+  border-left: 2px solid #2e5d8c;
+}
+.period-head-inner {
+  padding: 8px 6px 6px;
+  line-height: 1.3;
+}
+.period-head-inner .period-num { font-size: 0.9rem; font-weight: 800; }
+.period-head-inner .period-time { font-size: 0.65rem; opacity: 0.75; margin-top: 2px; }
+
+/* 行ヘッダー（曜日） */
+td.day-label {
+  background: #dce9f5 !important;
+  text-align: center;
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #1a3a5c;
+  vertical-align: middle;
+  width: 54px;
+  padding: 6px 4px;
+  border-right: 3px solid #8cadc8;
+  border-top: 3px solid #8cadc8;
+  border-bottom: none;
+}
+
+/* セル */
+td.slot {
+  vertical-align: top;
+  padding: 5px;
+  border-left: 2px solid #d4e2f0;
+  border-top: 3px solid #b8cfe6;   /* 曜日の区切り線 */
+  border-bottom: none;
+  min-width: 120px;
+}
+/* 先頭行は上ボーダーなし */
+tbody tr:first-child td.slot,
+tbody tr:first-child td.day-label { border-top: none; }
+
+/* 偶数・奇数行の背景 */
+tbody tr:nth-child(even) td.slot { background: #f3f8fd; }
+tbody tr:nth-child(odd)  td.slot { background: #ffffff; }
+
+/* ── 科目カード ── */
+.subject-card {
+  border-radius: 5px;
+  padding: 4px 6px;
+  margin-bottom: 3px;
+  font-size: 0.7rem;
+  line-height: 1.4;
+  cursor: default;
+  transition: transform 0.1s, box-shadow 0.1s;
+  border-left: 3px solid transparent;
+  position: relative;
+}
+.subject-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.14);
+  z-index: 10;
+}
+.subject-card:last-child { margin-bottom: 0; }
+.subject-name { font-weight: 700; font-size: 0.72rem; }
+.subject-meta { font-size: 0.64rem; opacity: 0.75; margin-top: 1px; }
+
+.subject-type-badge {
+  display: inline-block;
+  font-size: 0.6rem;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+.term-badge {
+  display: inline-block;
+  font-size: 0.6rem;
+  padding: 1px 5px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+.term-通 { background: #e8f8e8; color: #276220; }
+
+/* ★ 新規開講カード（その学年で初めて取れる科目） */
+.subject-card.is-new {
+  box-shadow: 0 0 0 1.5px #f0b429;
+  outline: none;
+}
+.subject-card.is-new::before {
+  content: '★ NEW';
+  position: absolute;
+  top: -1px; right: -1px;
+  background: #f0b429;
+  color: #5a3800;
+  font-size: 0.55rem;
+  font-weight: 900;
+  padding: 1px 4px;
+  border-radius: 0 4px 0 4px;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+
+/* 科目種別カラー */
+.type-基幹必修 { background:#fff0f0; border-color:#e74c3c; }
+.type-基幹必修 .subject-type-badge { background:#e74c3c; color:white; }
+.type-基幹選択 { background:#fff5eb; border-color:#e67e22; }
+.type-基幹選択 .subject-type-badge { background:#e67e22; color:white; }
+.type-言語     { background:#eef4ff; border-color:#3498db; }
+.type-言語 .subject-type-badge { background:#3498db; color:white; }
+.type-共通選択 { background:#f0faf0; border-color:#27ae60; }
+.type-共通選択 .subject-type-badge { background:#27ae60; color:white; }
+.type-資格     { background:#f5f0ff; border-color:#8e44ad; }
+.type-資格 .subject-type-badge { background:#8e44ad; color:white; }
+.type-ゼミ     { background:#e8faf8; border-color:#16a085; }
+.type-ゼミ .subject-type-badge { background:#16a085; color:white; }
+.type-other    { background:#f8f8f8; border-color:#95a5a6; }
+.type-other .subject-type-badge { background:#95a5a6; color:white; }
+
+/* NEWカードは背景を少し明るく */
+.subject-card.is-new.type-基幹必修 { background:#fff8f7; }
+.subject-card.is-new.type-基幹選択 { background:#fffaf3; }
+.subject-card.is-new.type-言語     { background:#f2f7ff; }
+.subject-card.is-new.type-共通選択 { background:#f4fcf4; }
+.subject-card.is-new.type-資格     { background:#faf5ff; }
+.subject-card.is-new.type-ゼミ     { background:#e0faf6; }
+
+.empty-cell { color: #bbb; font-size: 0.68rem; text-align: center; padding: 12px 0; }
+
+/* ── 特別セクション ── */
+.special-section {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  margin-bottom: 18px;
+  overflow: hidden;
+}
+.special-title {
+  background: #2a6496;
+  color: white;
+  padding: 9px 16px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.special-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 8px;
+  padding: 12px;
+}
+.special-card {
+  border-radius: 6px;
+  padding: 9px 11px;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  border-left: 4px solid;
+  position: relative;
+}
+.special-card.is-new { box-shadow: 0 0 0 1.5px #f0b429; }
+.special-card.is-new::before {
+  content: '★ NEW';
+  position: absolute;
+  top: -1px; right: -1px;
+  background: #f0b429;
+  color: #5a3800;
+  font-size: 0.55rem;
+  font-weight: 900;
+  padding: 1px 4px;
+  border-radius: 0 6px 0 4px;
+  line-height: 1.5;
+}
+.special-card .s-name { font-weight: 700; font-size: 0.8rem; margin-bottom: 3px; }
+.special-card .s-meta { font-size: 0.68rem; color: #666; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>令和8年度 人文学部社会福祉学科 授業時間割</h1>
+  <p>学年タブで表示範囲を切替。★NEWはその学年から新たに受講できる科目です。</p>
+</div>
+
+<div class="year-tabs">
+  <button class="year-tab active" onclick="selectYear(1)">1年生</button>
+  <button class="year-tab" onclick="selectYear(2)">2年生</button>
+  <button class="year-tab" onclick="selectYear(3)">3年生</button>
+  <button class="year-tab" onclick="selectYear(4)">4年生</button>
+</div>
+
+<div class="term-bar">
+  <span class="term-label">学期：</span>
+  <button class="term-tab active-spring" id="termTabSpring" onclick="selectTerm('春')">🌸 春学期</button>
+  <button class="term-tab" id="termTabAutumn" onclick="selectTerm('秋')">🍂 秋学期</button>
+</div>
+
+<div class="content">
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#e74c3c;"></div>基幹必修</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#e67e22;"></div>基幹選択</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#3498db;"></div>言語</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#27ae60;"></div>共通選択</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#8e44ad;"></div>資格</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#16a085;"></div>ゼミ</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#95a5a6;"></div>その他</div>
+    <div class="legend-sep"></div>
+    <div class="legend-item">
+      <span class="new-badge-legend">★ NEW</span>
+      <span id="newLabelText">その学年から新たに受講可能な科目</span>
+    </div>
+    <div class="legend-sep"></div>
+    <div class="legend-item"><span class="term-badge term-通" style="font-size:0.68rem;padding:1px 6px;">通年</span>&nbsp;通年科目は春・秋両方に表示</div>
+  </div>
+
+  <div class="timetable-wrapper">
+    <table>
+      <thead id="tableHead"></thead>
+      <tbody id="timetableBody"></tbody>
+    </table>
+  </div>
+
+  <div class="special-section" id="ondemandSection">
+    <div class="special-title">📱 オンデマンド科目</div>
+    <div class="special-grid" id="ondemandGrid"></div>
+  </div>
+
+  <div class="special-section" id="intensiveSection">
+    <div class="special-title">📅 集中講義・特別科目</div>
+    <div class="special-grid" id="intensiveGrid"></div>
+  </div>
+
+</div><!-- /content -->
+
+<script>
+const DATA = {"regular":[{"day":"月","term":"春","period":"1限","name":"ボランティア論","type":"基幹選択","grade":1,"teacher":"脇田　寛史","units":"2","room":"303"},{"day":"月","term":"春","period":"3限","name":"サンスクリット語I","type":"言語","grade":1,"teacher":"松本　純子","units":"2","room":"302"},{"day":"月","term":"春","period":"4限","name":"社会保障論A","type":"資格","grade":2,"teacher":"太谷　亜由美","units":"2","room":"305"},{"day":"月","term":"春","period":"3限","name":"仏教文学A","type":"共通選択","grade":1,"teacher":"川崎　明仁","units":"2","room":"303"},{"day":"月","term":"春","period":"4限","name":"社会福祉入門A","type":"基幹必修","grade":1,"teacher":"福井　未来","units":"2","room":"202"},{"day":"月","term":"春","period":"2限","name":"心理学概論A","type":"共通選択","grade":1,"teacher":"岡崎　良仁","units":"2","room":"201"},{"day":"月","term":"春","period":"3限","name":"権利擁護と成年後見制度","type":"資格","grade":2,"teacher":"明石　隆行","units":"2","room":"201"},{"day":"月","term":"春","period":"2限","name":"医療福祉論","type":"資格","grade":3,"teacher":"新地　敦彰","units":"2","room":"202"},{"day":"月","term":"春","period":"3限","name":"児童福祉論A","type":"資格","grade":1,"teacher":"福井　未来","units":"2","room":"203"},{"day":"月","term":"春","period":"2限","name":"総合英語A","type":"言語","grade":1,"teacher":"川崎　明仁","units":"2","room":"303"},{"day":"月","term":"春","period":"3限","name":"保育原理","type":"","grade":2,"teacher":"藤井　裕子","units":"2","room":"202"},{"day":"月","term":"秋","period":"3限","name":"サンスクリット語II","type":"言語","grade":1,"teacher":"松本　純子","units":"2","room":"302"},{"day":"月","term":"秋","period":"4限","name":"社会保障論B","type":"資格","grade":2,"teacher":"太谷　亜由美","units":"2","room":"305"},{"day":"月","term":"秋","period":"2限","name":"心理学概論B","type":"共通選択","grade":1,"teacher":"岡崎　良仁","units":"2","room":"201"},{"day":"月","term":"秋","period":"3限","name":"仏教文学B","type":"共通選択","grade":1,"teacher":"川崎　明仁","units":"2","room":"303"},{"day":"月","term":"秋","period":"4限","name":"社会福祉入門B","type":"基幹必修","grade":1,"teacher":"福井　未来","units":"2","room":"202"},{"day":"月","term":"秋","period":"2限","name":"総合英語B","type":"言語","grade":1,"teacher":"川崎　明仁","units":"2","room":"303"},{"day":"月","term":"秋","period":"3限","name":"児童福祉論B","type":"資格","grade":1,"teacher":"福井　未来","units":"2","room":"203"},{"day":"月","term":"秋","period":"3限","name":"公的扶助論","type":"資格","grade":2,"teacher":"明石　隆行","units":"2","room":"201"},{"day":"月","term":"秋","period":"3限","name":"保育内容","type":"","grade":2,"teacher":"藤井　裕子","units":"2","room":"202"},{"day":"火","term":"通","period":"3限","name":"社会福祉学基礎演習","type":"ゼミ","grade":2,"teacher":"鴨野　直敏","units":"4","room":"202"},{"day":"火","term":"通","period":"3限","name":"社会福祉学専門演習","type":"ゼミ","grade":3,"teacher":"近棟　健二","units":"4","room":"201"},{"day":"火","term":"通","period":"4限","name":"社会福祉学入門演習","type":"ゼミ","grade":1,"teacher":"福井　未来","units":"4","room":"303"},{"day":"火","term":"春","period":"1限","name":"密教入門A","type":"基幹選択","grade":1,"teacher":"松本　峰哲","units":"2","room":"204"},{"day":"火","term":"春","period":"2限","name":"世界の福祉","type":"基幹選択","grade":1,"teacher":"向井　啓二","units":"2","room":"301"},{"day":"火","term":"春","period":"3限","name":"仏教入門A","type":"基幹必修","grade":1,"teacher":"今井　淨圓","units":"2","room":"303"},{"day":"火","term":"春","period":"4限","name":"インド哲学概論A","type":"共通選択","grade":1,"teacher":"松本　峰哲","units":"2","room":"204"},{"day":"火","term":"春","period":"5限","name":"障害者スポーツ論","type":"","grade":2,"teacher":"猪飼　聡","units":"2","room":"301"},{"day":"火","term":"春","period":"1限","name":"社会福祉運営論","type":"資格","grade":2,"teacher":"小寺　鐵也","units":"2","room":"302"},{"day":"火","term":"春","period":"5限","name":"種智院学","type":"基幹必修","grade":1,"teacher":"佐伯　俊源","units":"1","room":"203"},{"day":"火","term":"春","period":"4限","name":"社会福祉援助技術各論1A","type":"資格","grade":2,"teacher":"溪村　真司","units":"2","room":"302"},{"day":"火","term":"春","period":"5限","name":"自己開発とキャリアデザイン","type":"基幹必修","grade":1,"teacher":"川崎　明仁","units":"1","room":"203"},{"day":"火","term":"春","period":"2限","name":"チベット語I","type":"言語","grade":1,"teacher":"スダン・シャキャ","units":"2","room":"304"},{"day":"火","term":"春","period":"2限","name":"精神保健学A","type":"資格","grade":3,"teacher":"小寺　鐵也","units":"2","room":"302"},{"day":"火","term":"秋","period":"1限","name":"密教入門B","type":"基幹選択","grade":1,"teacher":"松本　峰哲","units":"2","room":"204"},{"day":"火","term":"秋","period":"3限","name":"仏教入門B","type":"基幹必修","grade":1,"teacher":"添野　了","units":"2","room":"303"},{"day":"火","term":"秋","period":"4限","name":"インド哲学概論B","type":"共通選択","grade":1,"teacher":"松本　峰哲","units":"2","room":"204"},{"day":"火","term":"秋","period":"2限","name":"チベット語II","type":"言語","grade":1,"teacher":"スダン・シャキャ","units":"2","room":"304"},{"day":"火","term":"秋","period":"4限","name":"社会福祉援助技術各論1B","type":"資格","grade":2,"teacher":"溪村　真司","units":"2","room":"302"},{"day":"火","term":"秋","period":"4限","name":"精神保健福祉援助実習指導I","type":"資格","grade":3,"teacher":"鴨野　直敏","units":"1","room":"301"},{"day":"火","term":"秋","period":"2限","name":"精神保健学B","type":"資格","grade":3,"teacher":"小寺　鐵也","units":"2","room":"302"},{"day":"水","term":"春","period":"1限","name":"英会話A","type":"言語","grade":1,"teacher":"川崎　明仁","units":"2","room":"303"},{"day":"水","term":"春","period":"4限","name":"仏教と習俗","type":"基幹選択","grade":1,"teacher":"今井　淨圓","units":"2","room":"303"},{"day":"水","term":"春","period":"1限","name":"精神保健福祉制度論","type":"資格","grade":2,"teacher":"鴨野　直敏","units":"2","room":"202"},{"day":"水","term":"春","period":"2限","name":"社会福祉援助技術総論A","type":"資格","grade":2,"teacher":"岡本　芳也","units":"2","room":"203"},{"day":"水","term":"春","period":"3限","name":"日本語(実践文章論)","type":"共通選択","grade":1,"teacher":"千古　利恵子","units":"2","room":"305"},{"day":"水","term":"春","period":"4限","name":"社会学概論A","type":"共通選択","grade":1,"teacher":"西牟田　真希","units":"2","room":"201"},{"day":"水","term":"春","period":"3限","name":"医学一般","type":"資格","grade":1,"teacher":"池上　和美","units":"2","room":"202"},{"day":"水","term":"春","period":"4限","name":"古文書学A","type":"共通選択","grade":1,"teacher":"左右田　昌幸","units":"2","room":"305"},{"day":"水","term":"春","period":"3限","name":"精神保健福祉援助技術演習2A","type":"資格","grade":4,"teacher":"鴨野　直敏","units":"2","room":"303"},{"day":"水","term":"秋","period":"1限","name":"英会話B","type":"言語","grade":1,"teacher":"川崎　明仁","units":"2","room":"303"},{"day":"水","term":"秋","period":"4限","name":"仏教と文化","type":"基幹選択","grade":1,"teacher":"今井　淨圓","units":"2","room":"303"},{"day":"水","term":"秋","period":"1限","name":"精神保健福祉援助技術演習1","type":"資格","grade":3,"teacher":"鴨野　直敏","units":"2","room":"202"},{"day":"水","term":"秋","period":"2限","name":"社会福祉援助技術総論B","type":"資格","grade":2,"teacher":"岡本　芳也","units":"2","room":"203"},{"day":"水","term":"秋","period":"3限","name":"精神保健福祉援助技術演習2B","type":"資格","grade":4,"teacher":"鴨野　直敏","units":"2","room":"303"},{"day":"水","term":"秋","period":"4限","name":"社会学概論B","type":"共通選択","grade":1,"teacher":"西牟田　真希","units":"2","room":"201"},{"day":"水","term":"秋","period":"3限","name":"社会福祉調査論","type":"資格","grade":2,"teacher":"西牟田　真希","units":"2","room":"202"},{"day":"水","term":"秋","period":"4限","name":"古文書学B","type":"共通選択","grade":1,"teacher":"左右田　昌幸","units":"2","room":"305"},{"day":"木","term":"春","period":"1限","name":"フランス語初級","type":"言語","grade":1,"teacher":"川崎　明仁","units":"2","room":"303"},{"day":"木","term":"春","period":"2限","name":"福祉英語A","type":"言語","grade":1,"teacher":"川崎　明仁","units":"2","room":"303"},{"day":"木","term":"春","period":"1限","name":"社会福祉援助技術演習IA","type":"資格","grade":3,"teacher":"近棟　健二","units":"2","room":"401"},{"day":"木","term":"春","period":"3限","name":"密教瞑想A","type":"共通選択","grade":1,"teacher":"北尾　隆心","units":"1","room":"307"},{"day":"木","term":"春","period":"2限","name":"仏教福祉史A","type":"","grade":2,"teacher":"宮城　洋一郎","units":"2","room":"302"},{"day":"木","term":"春","period":"2限","name":"精神保健福祉の原理A","type":"資格","grade":2,"teacher":"小寺　鐵也","units":"2","room":"202"},{"day":"木","term":"春","period":"2限","name":"人権思想","type":"基幹必修","grade":1,"teacher":"田中　和男","units":"2","room":"203"},{"day":"木","term":"春","period":"3限","name":"仏教福祉学研究1A","type":"","grade":3,"teacher":"宮城　洋一郎","units":"2","room":"201"},{"day":"木","term":"春","period":"2限","name":"社会福祉援助技術演習IB","type":"資格","grade":3,"teacher":"近棟　健二","units":"2","room":"401"},{"day":"木","term":"春","period":"3限","name":"ソーシャルワーク実習指導II","type":"資格","grade":3,"teacher":"近棟　健二","units":"1","room":"303"},{"day":"木","term":"春","period":"3限","name":"精神保健福祉援助実習指導II","type":"資格","grade":4,"teacher":"鴨野　直敏","units":"1","room":"302"},{"day":"木","term":"春","period":"3限","name":"スポーツ実技1","type":"共通選択","grade":1,"teacher":"当麻　成人","units":"1","room":"体育館"},{"day":"木","term":"秋","period":"1限","name":"ドイツ語初級","type":"言語","grade":1,"teacher":"川崎　明仁","units":"2","room":"303"},{"day":"木","term":"秋","period":"2限","name":"福祉英語B","type":"言語","grade":1,"teacher":"川崎　明仁","units":"2","room":"303"},{"day":"木","term":"秋","period":"1限","name":"社会福祉援助技術基礎演習","type":"資格","grade":2,"teacher":"鴨野　直敏","units":"2","room":"203"},{"day":"木","term":"秋","period":"3限","name":"密教瞑想B","type":"共通選択","grade":1,"teacher":"北尾　隆心","units":"1","room":"307"},{"day":"木","term":"秋","period":"4限","name":"ソーシャルワーク実習指導I","type":"資格","grade":2,"teacher":"近棟　健二","units":"1","room":"303"},{"day":"木","term":"秋","period":"1限","name":"社会福祉援助技術演習IIA","type":"資格","grade":3,"teacher":"福井　未来","units":"2","room":"401"},{"day":"木","term":"秋","period":"2限","name":"仏教福祉史B","type":"","grade":2,"teacher":"宮城　洋一郎","units":"2","room":"302"},{"day":"木","term":"秋","period":"2限","name":"精神保健福祉の原理B","type":"資格","grade":2,"teacher":"小寺　鐵也","units":"2","room":"202"},{"day":"木","term":"秋","period":"4限","name":"介護入門","type":"基幹選択","grade":1,"teacher":"岡下　恵子","units":"2","room":"介護"},{"day":"木","term":"秋","period":"2限","name":"社会福祉援助技術演習IIB","type":"資格","grade":3,"teacher":"福井　未来","units":"2","room":"401"},{"day":"木","term":"秋","period":"3限","name":"仏教福祉学研究1B","type":"","grade":3,"teacher":"宮城　洋一郎","units":"2","room":"201"},{"day":"木","term":"秋","period":"2限","name":"福祉文化論","type":"基幹選択","grade":1,"teacher":"柴田　綾子","units":"2","room":"201"},{"day":"木","term":"秋","period":"3限","name":"ソーシャルワーク実習指導III","type":"資格","grade":3,"teacher":"近棟　健二","units":"1","room":"303"},{"day":"木","term":"秋","period":"3限","name":"精神保健福祉援助実習指導III","type":"資格","grade":4,"teacher":"鴨野　直敏","units":"1","room":"302"},{"day":"木","term":"秋","period":"3限","name":"スポーツ実技2","type":"共通選択","grade":1,"teacher":"当麻　成人","units":"1","room":"体育館"},{"day":"金","term":"通","period":"4限","name":"社会福祉学卒論演習","type":"ゼミ","grade":4,"teacher":"佐伯　俊源","units":"4","room":"202"},{"day":"金","term":"春","period":"1限","name":"宗教と福祉A","type":"基幹必修","grade":1,"teacher":"佐伯　俊源","units":"2","room":"203"},{"day":"金","term":"春","period":"2限","name":"日本思想史A","type":"共通選択","grade":1,"teacher":"向井　啓二","units":"2","room":"301"},{"day":"金","term":"春","period":"5限","name":"社会福祉原論A","type":"","grade":2,"teacher":"佐伯　俊源","units":"2","room":"202"},{"day":"金","term":"春","period":"3限","name":"仏教美術A","type":"共通選択","grade":1,"teacher":"中村　幸子","units":"1","room":"304"},{"day":"金","term":"春","period":"2限","name":"仏教と現代社会","type":"基幹選択","grade":1,"teacher":"佐伯　俊源","units":"2","room":"203"},{"day":"金","term":"春","period":"4限","name":"社会福祉援助技術各論2A","type":"資格","grade":2,"teacher":"石井　日出弘","units":"2","room":"303"},{"day":"金","term":"春","period":"3限","name":"地域福祉論A","type":"資格","grade":2,"teacher":"近棟　健二","units":"2","room":"201"},{"day":"金","term":"春","period":"3限","name":"障害者福祉論A","type":"資格","grade":1,"teacher":"石井　日出弘","units":"2","room":"303"},{"day":"金","term":"秋","period":"1限","name":"宗教と福祉B","type":"基幹必修","grade":1,"teacher":"佐伯　俊源","units":"2","room":"203"},{"day":"金","term":"秋","period":"2限","name":"日本思想史B","type":"共通選択","grade":1,"teacher":"向井　啓二","units":"2","room":"301"},{"day":"金","term":"秋","period":"5限","name":"社会福祉原論B","type":"資格","grade":2,"teacher":"佐伯　俊源","units":"2","room":"202"},{"day":"金","term":"秋","period":"3限","name":"仏教美術B","type":"共通選択","grade":1,"teacher":"中村　幸子","units":"1","room":"304"},{"day":"金","term":"秋","period":"2限","name":"仏教と生命倫理","type":"基幹選択","grade":1,"teacher":"佐伯　俊源","units":"2","room":"203"},{"day":"金","term":"秋","period":"4限","name":"社会福祉援助技術各論2B","type":"資格","grade":2,"teacher":"石井　日出弘","units":"2","room":"303"},{"day":"金","term":"秋","period":"3限","name":"地域福祉論B","type":"資格","grade":2,"teacher":"近棟　健二","units":"2","room":"201"},{"day":"金","term":"秋","period":"3限","name":"障害者福祉論B","type":"資格","grade":1,"teacher":"石井　日出弘","units":"2","room":"303"},{"day":"土","term":"春","period":"1限","name":"日本美術史2A","type":"共通選択","grade":1,"teacher":"長谷　法寿","units":"2","room":"304"},{"day":"土","term":"秋","period":"1限","name":"日本美術史2B","type":"共通選択","grade":1,"teacher":"長谷　法寿","units":"2","room":"304"}],"ondemand":[{"name":"ソーシャルワークの理論と方法(専門)A","type":"資格","grade":3,"teacher":"長谷川　章子","units":"2","term":"春"},{"name":"ソーシャルワークの理論と方法(専門)B","type":"資格","grade":3,"teacher":"長谷川　章子","units":"2","term":"秋"},{"name":"精神障害リハビリテーション論","type":"資格","grade":3,"teacher":"出口　聖人","units":"2","term":"春"},{"name":"更生保護制度","type":"資格","grade":2,"teacher":"中村　秀郷","units":"2","term":"秋"},{"name":"老人福祉論A","type":"資格","grade":1,"teacher":"申　恩瑄","units":"2","term":"春"},{"name":"老人福祉論B","type":"資格","grade":1,"teacher":"申　恩瑄","units":"2","term":"秋"}],"intensive":[{"name":"企業実習","type":"共通選択","grade":3,"teacher":"近棟　健二","units":"1","term":"春学"},{"name":"精神医学B","type":"資格","grade":2,"teacher":"加藤　敬徳","units":"2","term":"秋学"},{"name":"精神医学A","type":"資格","grade":2,"teacher":"加藤　敬徳","units":"2","term":"春学"},{"name":"宗教音楽B","type":"共通選択","grade":1,"teacher":"新井　弘賢","units":"1","term":"秋学"},{"name":"宗教音楽A","type":"共通選択","grade":1,"teacher":"新井　弘賢","units":"1","term":"春学"},{"name":"高野山学","type":"基幹選択","grade":1,"teacher":"髙井　知弘","units":"2","term":"秋学"},{"name":"ソーシャルワーク実習I","type":"資格","grade":2,"teacher":"近棟　健二","units":"2","term":"秋学"},{"name":"ソーシャルワーク実習II","type":"資格","grade":3,"teacher":"近棟　健二","units":"6","term":"春学"},{"name":"精神保健福祉援助実習","type":"資格","grade":4,"teacher":"鴨野　直敏","units":"6","term":"春学"}]};
+
+const DAYS    = ['月','火','水','木','金','土'];
+const PERIODS = ['1限','2限','3限','4限','5限'];
+const TIMES   = ['9:00〜10:30','10:40〜12:10','13:00〜14:30','14:40〜16:10','16:20〜17:50'];
+
+let currentYear = 1;
+let currentTerm = '春';
+
+function typeClass(type) {
+  return 'type-' + ({'基幹必修':'基幹必修','基幹選択':'基幹選択','言語':'言語','共通選択':'共通選択','資格':'資格','ゼミ':'ゼミ'}[type] || 'other');
+}
+function typeLabel(type) { return type || 'その他'; }
+
+function isVisible(e, yr) {
+  return e.type === 'ゼミ' ? e.grade === yr : e.grade <= yr;
+}
+function isNew(e, yr) {
+  // 1年生タブではNEW表示なし（全科目が初めて）
+  if (yr === 1) return false;
+  return e.type === 'ゼミ' ? e.grade === yr : e.grade === yr;
+}
+function matchesTerm(eTerm, sel) {
+  if (eTerm === '通') return true;
+  if (eTerm === sel) return true;
+  if (eTerm && eTerm.startsWith(sel)) return true;
+  return false;
+}
+
+function makeCard(entry, yr) {
+  const tc = typeClass(entry.type);
+  const newCls = isNew(entry, yr) ? ' is-new' : '';
+  const nenkan = entry.term === '通'
+    ? `<span class="term-badge term-通">通年</span>` : '';
+  return `<div class="subject-card ${tc}${newCls}">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:3px;margin-bottom:2px;">
+      <span class="subject-type-badge">${typeLabel(entry.type)}</span>
+      ${nenkan}
+    </div>
+    <div class="subject-name">${entry.name}</div>
+    <div class="subject-meta">${entry.teacher}${entry.room ? ' / ' + entry.room : ''}</div>
+  </div>`;
+}
+
+function renderHead() {
+  const thead = document.getElementById('tableHead');
+  let html = '<tr><th class="day-col-header">曜日</th>';
+  PERIODS.forEach((p, i) => {
+    html += `<th class="period-col">
+      <div class="period-head-inner">
+        <div class="period-num">${p}</div>
+        <div class="period-time">${TIMES[i]}</div>
+      </div>
+    </th>`;
+  });
+  html += '</tr>';
+  thead.innerHTML = html;
+}
+
+function renderBody(yr, term) {
+  const tbody = document.getElementById('timetableBody');
+  let html = '';
+  DAYS.forEach(day => {
+    html += `<tr><td class="day-label">${day}<br><span style="font-size:0.6rem;font-weight:400;color:#6a7f96;">曜日</span></td>`;
+    PERIODS.forEach(period => {
+      const entries = DATA.regular.filter(e =>
+        e.day === day && e.period === period && isVisible(e, yr) && matchesTerm(e.term, term)
+      );
+      if (entries.length === 0) {
+        html += `<td class="slot"><div class="empty-cell">—</div></td>`;
+      } else {
+        html += `<td class="slot">${entries.map(e => makeCard(e, yr)).join('')}</td>`;
+      }
+    });
+    html += '</tr>';
+  });
+  tbody.innerHTML = html;
+}
+
+function makeSpecialCard(entry, yr) {
+  const tc = typeClass(entry.type);
+  const newCls = isNew(entry, yr) ? ' is-new' : '';
+  return `<div class="special-card ${tc}${newCls}">
+    <div class="s-name">${entry.name}</div>
+    <div style="margin:3px 0;"><span class="subject-type-badge">${typeLabel(entry.type)}</span></div>
+    <div class="s-meta">${entry.teacher}　${entry.units}単位</div>
+  </div>`;
+}
+
+function renderSpecial(yr, term) {
+  const odSec  = document.getElementById('ondemandSection');
+  const intSec = document.getElementById('intensiveSection');
+  const odGrid = document.getElementById('ondemandGrid');
+  const intGrid= document.getElementById('intensiveGrid');
+
+  const odItems  = DATA.ondemand.filter(e  => isVisible(e, yr) && matchesTerm(e.term, term));
+  const intItems = DATA.intensive.filter(e => isVisible(e, yr) && matchesTerm(e.term, term));
+
+  odSec.style.display  = odItems.length  ? '' : 'none';
+  intSec.style.display = intItems.length ? '' : 'none';
+  odGrid.innerHTML  = odItems.map(e  => makeSpecialCard(e, yr)).join('');
+  intGrid.innerHTML = intItems.map(e => makeSpecialCard(e, yr)).join('');
+}
+
+function render() {
+  renderBody(currentYear, currentTerm);
+  renderSpecial(currentYear, currentTerm);
+  // NEWラベル説明文
+  const lbl = document.getElementById('newLabelText');
+  if (currentYear === 1) {
+    lbl.textContent = '（2年生以上のタブで有効）';
+    lbl.style.color = '#aaa';
+  } else {
+    lbl.textContent = `${currentYear}年生から新たに受講できる科目`;
+    lbl.style.color = '#555';
+  }
+}
+
+function selectYear(yr) {
+  currentYear = yr;
+  document.querySelectorAll('.year-tab').forEach((t, i) => {
+    t.classList.toggle('active', i + 1 === yr);
+  });
+  render();
+}
+
+function selectTerm(term) {
+  currentTerm = term;
+  document.getElementById('termTabSpring').className = 'term-tab' + (term === '春' ? ' active-spring' : '');
+  document.getElementById('termTabAutumn').className = 'term-tab' + (term === '秋' ? ' active-autumn' : '');
+  render();
+}
+
+// 初期化
+renderHead();
+selectYear(1);
+</script>
+</body>
+</html>
