@@ -234,6 +234,53 @@ tbody tr:nth-child(odd)  td.slot { background: #ffffff; }
 .subject-card.is-new.type-資格     { background:#faf5ff; }
 .subject-card.is-new.type-ゼミ     { background:#e0faf6; }
 
+/* ── 科目種別フィルター ── */
+.type-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  background: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  margin-bottom: 14px;
+}
+.type-filter-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #6a7f96;
+  margin-right: 4px;
+  white-space: nowrap;
+}
+.type-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 2px solid transparent;
+  background: #f0f4f8;
+  color: #666;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.type-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+.type-btn .dot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+
+/* 選択中 */
+.type-btn.active-all  { background: #1a3a5c; color: white; border-color: #1a3a5c; }
+.type-btn.active-基幹必修 { background: #fde8e8; color: #b03030; border-color: #e74c3c; }
+.type-btn.active-基幹選択 { background: #fdecd8; color: #a05010; border-color: #e67e22; }
+.type-btn.active-言語     { background: #ddeeff; color: #1a5c9c; border-color: #3498db; }
+.type-btn.active-共通選択 { background: #ddf5e4; color: #1a6635; border-color: #27ae60; }
+.type-btn.active-資格     { background: #ede0f8; color: #6a1a9a; border-color: #8e44ad; }
+.type-btn.active-ゼミ     { background: #d5f5ef; color: #0d6655; border-color: #16a085; }
+.type-btn.active-その他   { background: #eaeaea; color: #444;    border-color: #95a5a6; }
+
 .empty-cell { color: #bbb; font-size: 0.68rem; text-align: center; padding: 12px 0; }
 
 /* ── 特別セクション ── */
@@ -324,6 +371,18 @@ tbody tr:nth-child(odd)  td.slot { background: #ffffff; }
     <div class="legend-item"><span class="term-badge term-通" style="font-size:0.68rem;padding:1px 6px;">通年</span>&nbsp;通年科目は春・秋両方に表示</div>
   </div>
 
+  <div class="type-filter-bar">
+    <span class="type-filter-label">科目種別：</span>
+    <button class="type-btn active-all" id="typeBtn-all"     onclick="selectType(null)">すべて</button>
+    <button class="type-btn" id="typeBtn-基幹必修" onclick="selectType('基幹必修')"><span class="dot" style="background:#e74c3c"></span>基幹必修</button>
+    <button class="type-btn" id="typeBtn-基幹選択" onclick="selectType('基幹選択')"><span class="dot" style="background:#e67e22"></span>基幹選択</button>
+    <button class="type-btn" id="typeBtn-言語"     onclick="selectType('言語')"    ><span class="dot" style="background:#3498db"></span>言語</button>
+    <button class="type-btn" id="typeBtn-共通選択" onclick="selectType('共通選択')"><span class="dot" style="background:#27ae60"></span>共通選択</button>
+    <button class="type-btn" id="typeBtn-資格"     onclick="selectType('資格')"    ><span class="dot" style="background:#8e44ad"></span>資格</button>
+    <button class="type-btn" id="typeBtn-ゼミ"     onclick="selectType('ゼミ')"    ><span class="dot" style="background:#16a085"></span>ゼミ</button>
+    <button class="type-btn" id="typeBtn-その他"   onclick="selectType('other')"  ><span class="dot" style="background:#95a5a6"></span>その他</button>
+  </div>
+
   <div class="timetable-wrapper">
     <table>
       <thead id="tableHead"></thead>
@@ -352,6 +411,7 @@ const TIMES   = ['9:00〜10:30','10:40〜12:10','13:00〜14:30','14:40〜16:10',
 
 let currentYear = 1;
 let currentTerm = '春';
+let currentType = null; // null = すべて
 
 function typeClass(type) {
   return 'type-' + ({'基幹必修':'基幹必修','基幹選択':'基幹選択','言語':'言語','共通選択':'共通選択','資格':'資格','ゼミ':'ゼミ'}[type] || 'other');
@@ -371,6 +431,11 @@ function matchesTerm(eTerm, sel) {
   if (eTerm === sel) return true;
   if (eTerm && eTerm.startsWith(sel)) return true;
   return false;
+}
+function matchesType(e, t) {
+  if (t === null) return true;
+  if (t === 'other') return !e.type || !['基幹必修','基幹選択','言語','共通選択','資格','ゼミ'].includes(e.type);
+  return e.type === t;
 }
 
 function makeCard(entry, yr) {
@@ -410,7 +475,7 @@ function renderBody(yr, term) {
     html += `<tr><td class="day-label">${day}<br><span style="font-size:0.6rem;font-weight:400;color:#6a7f96;">曜日</span></td>`;
     PERIODS.forEach(period => {
       const entries = DATA.regular.filter(e =>
-        e.day === day && e.period === period && isVisible(e, yr) && matchesTerm(e.term, term)
+        e.day === day && e.period === period && isVisible(e, yr) && matchesTerm(e.term, term) && matchesType(e, currentType)
       );
       if (entries.length === 0) {
         html += `<td class="slot"><div class="empty-cell">—</div></td>`;
@@ -439,8 +504,8 @@ function renderSpecial(yr, term) {
   const odGrid = document.getElementById('ondemandGrid');
   const intGrid= document.getElementById('intensiveGrid');
 
-  const odItems  = DATA.ondemand.filter(e  => isVisible(e, yr) && matchesTerm(e.term, term));
-  const intItems = DATA.intensive.filter(e => isVisible(e, yr) && matchesTerm(e.term, term));
+  const odItems  = DATA.ondemand.filter(e  => isVisible(e, yr) && matchesTerm(e.term, term) && matchesType(e, currentType));
+  const intItems = DATA.intensive.filter(e => isVisible(e, yr) && matchesTerm(e.term, term) && matchesType(e, currentType));
 
   odSec.style.display  = odItems.length  ? '' : 'none';
   intSec.style.display = intItems.length ? '' : 'none';
@@ -474,6 +539,23 @@ function selectTerm(term) {
   currentTerm = term;
   document.getElementById('termTabSpring').className = 'term-tab' + (term === '春' ? ' active-spring' : '');
   document.getElementById('termTabAutumn').className = 'term-tab' + (term === '秋' ? ' active-autumn' : '');
+  render();
+}
+
+const TYPE_KEYS = ['基幹必修','基幹選択','言語','共通選択','資格','ゼミ','その他'];
+function selectType(t) {
+  currentType = t;
+  // すべてボタン
+  document.getElementById('typeBtn-all').className =
+    'type-btn' + (t === null ? ' active-all' : '');
+  // 各種別ボタン
+  TYPE_KEYS.forEach(k => {
+    const id = 'typeBtn-' + k;
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    const key = k === 'その他' ? 'other' : k;
+    btn.className = 'type-btn' + (t === key ? ' active-' + k : '');
+  });
   render();
 }
 
