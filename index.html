@@ -142,15 +142,13 @@ td.slot {
   vertical-align: top;
   padding: 5px;
   border-left: 2px solid #d4e2f0;
-  border-top: 3px solid #b8cfe6;   /* 曜日の区切り線 */
+  border-top: 3px solid #b8cfe6;
   border-bottom: none;
   min-width: 120px;
 }
-/* 先頭行は上ボーダーなし */
 tbody tr:first-child td.slot,
 tbody tr:first-child td.day-label { border-top: none; }
 
-/* 偶数・奇数行の背景 */
 tbody tr:nth-child(even) td.slot { background: #f3f8fd; }
 tbody tr:nth-child(odd)  td.slot { background: #ffffff; }
 
@@ -191,7 +189,6 @@ tbody tr:nth-child(odd)  td.slot { background: #ffffff; }
 }
 .term-通 { background: #e8f8e8; color: #276220; }
 
-/* ★ 新規開講カード（その学年で初めて取れる科目） */
 .subject-card.is-new {
   box-shadow: 0 0 0 1.5px #f0b429;
   outline: none;
@@ -226,7 +223,6 @@ tbody tr:nth-child(odd)  td.slot { background: #ffffff; }
 .type-other    { background:#f8f8f8; border-color:#95a5a6; }
 .type-other .subject-type-badge { background:#95a5a6; color:white; }
 
-/* NEWカードは背景を少し明るく */
 .subject-card.is-new.type-基幹必修 { background:#fff8f7; }
 .subject-card.is-new.type-基幹選択 { background:#fffaf3; }
 .subject-card.is-new.type-言語     { background:#f2f7ff; }
@@ -253,6 +249,15 @@ tbody tr:nth-child(odd)  td.slot { background: #ffffff; }
   margin-right: 4px;
   white-space: nowrap;
 }
+
+/* 複数選択ヒント */
+.type-filter-hint {
+  font-size: 0.68rem;
+  color: #9ab0c4;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
 .type-btn {
   display: inline-flex;
   align-items: center;
@@ -267,19 +272,36 @@ tbody tr:nth-child(odd)  td.slot { background: #ffffff; }
   color: #666;
   transition: all 0.15s;
   white-space: nowrap;
+  user-select: none;
 }
 .type-btn:hover { opacity: 0.85; transform: translateY(-1px); }
 .type-btn .dot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
 
-/* 選択中 */
-.type-btn.active-all  { background: #1a3a5c; color: white; border-color: #1a3a5c; }
-.type-btn.active-基幹必修 { background: #fde8e8; color: #b03030; border-color: #e74c3c; }
-.type-btn.active-基幹選択 { background: #fdecd8; color: #a05010; border-color: #e67e22; }
-.type-btn.active-言語     { background: #ddeeff; color: #1a5c9c; border-color: #3498db; }
-.type-btn.active-共通選択 { background: #ddf5e4; color: #1a6635; border-color: #27ae60; }
-.type-btn.active-資格     { background: #ede0f8; color: #6a1a9a; border-color: #8e44ad; }
-.type-btn.active-ゼミ     { background: #d5f5ef; color: #0d6655; border-color: #16a085; }
-.type-btn.active-その他   { background: #eaeaea; color: #444;    border-color: #95a5a6; }
+/* 選択中スタイル */
+.type-btn.active-all      { background: #1a3a5c; color: white; border-color: #1a3a5c; }
+.type-btn.active-基幹必修  { background: #fde8e8; color: #b03030; border-color: #e74c3c; }
+.type-btn.active-基幹選択  { background: #fdecd8; color: #a05010; border-color: #e67e22; }
+.type-btn.active-言語      { background: #ddeeff; color: #1a5c9c; border-color: #3498db; }
+.type-btn.active-共通選択  { background: #ddf5e4; color: #1a6635; border-color: #27ae60; }
+.type-btn.active-資格      { background: #ede0f8; color: #6a1a9a; border-color: #8e44ad; }
+.type-btn.active-ゼミ      { background: #d5f5ef; color: #0d6655; border-color: #16a085; }
+.type-btn.active-その他    { background: #eaeaea; color: #444;    border-color: #95a5a6; }
+
+/* 選択件数バッジ */
+.filter-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  background: #2a6496;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 800;
+  border-radius: 9px;
+  padding: 0 4px;
+  margin-left: 2px;
+}
 
 .empty-cell { color: #bbb; font-size: 0.68rem; text-align: center; padding: 12px 0; }
 
@@ -373,14 +395,15 @@ tbody tr:nth-child(odd)  td.slot { background: #ffffff; }
 
   <div class="type-filter-bar">
     <span class="type-filter-label">科目種別：</span>
-    <button class="type-btn active-all" id="typeBtn-all"     onclick="selectType(null)">すべて</button>
-    <button class="type-btn" id="typeBtn-基幹必修" onclick="selectType('基幹必修')"><span class="dot" style="background:#e74c3c"></span>基幹必修</button>
-    <button class="type-btn" id="typeBtn-基幹選択" onclick="selectType('基幹選択')"><span class="dot" style="background:#e67e22"></span>基幹選択</button>
-    <button class="type-btn" id="typeBtn-言語"     onclick="selectType('言語')"    ><span class="dot" style="background:#3498db"></span>言語</button>
-    <button class="type-btn" id="typeBtn-共通選択" onclick="selectType('共通選択')"><span class="dot" style="background:#27ae60"></span>共通選択</button>
-    <button class="type-btn" id="typeBtn-資格"     onclick="selectType('資格')"    ><span class="dot" style="background:#8e44ad"></span>資格</button>
-    <button class="type-btn" id="typeBtn-ゼミ"     onclick="selectType('ゼミ')"    ><span class="dot" style="background:#16a085"></span>ゼミ</button>
-    <button class="type-btn" id="typeBtn-その他"   onclick="selectType('other')"  ><span class="dot" style="background:#95a5a6"></span>その他</button>
+    <button class="type-btn active-all" id="typeBtn-all"     onclick="toggleType(null)">すべて</button>
+    <button class="type-btn" id="typeBtn-基幹必修" onclick="toggleType('基幹必修')"><span class="dot" style="background:#e74c3c"></span>基幹必修</button>
+    <button class="type-btn" id="typeBtn-基幹選択" onclick="toggleType('基幹選択')"><span class="dot" style="background:#e67e22"></span>基幹選択</button>
+    <button class="type-btn" id="typeBtn-言語"     onclick="toggleType('言語')"    ><span class="dot" style="background:#3498db"></span>言語</button>
+    <button class="type-btn" id="typeBtn-共通選択" onclick="toggleType('共通選択')"><span class="dot" style="background:#27ae60"></span>共通選択</button>
+    <button class="type-btn" id="typeBtn-資格"     onclick="toggleType('資格')"    ><span class="dot" style="background:#8e44ad"></span>資格</button>
+    <button class="type-btn" id="typeBtn-ゼミ"     onclick="toggleType('ゼミ')"    ><span class="dot" style="background:#16a085"></span>ゼミ</button>
+    <button class="type-btn" id="typeBtn-その他"   onclick="toggleType('other')"  ><span class="dot" style="background:#95a5a6"></span>その他</button>
+    <span class="type-filter-hint" id="filterHint">複数選択可</span>
   </div>
 
   <div class="timetable-wrapper">
@@ -411,7 +434,8 @@ const TIMES   = ['9:00〜10:30','10:40〜12:10','13:00〜14:30','14:40〜16:10',
 
 let currentYear = 1;
 let currentTerm = '春';
-let currentType = null; // null = すべて
+// ── 変更点①：複数選択用Set（null = すべて）
+let selectedTypes = null; // null or Set
 
 function typeClass(type) {
   return 'type-' + ({'基幹必修':'基幹必修','基幹選択':'基幹選択','言語':'言語','共通選択':'共通選択','資格':'資格','ゼミ':'ゼミ'}[type] || 'other');
@@ -422,7 +446,6 @@ function isVisible(e, yr) {
   return e.type === 'ゼミ' ? e.grade === yr : e.grade <= yr;
 }
 function isNew(e, yr) {
-  // 1年生タブではNEW表示なし（全科目が初めて）
   if (yr === 1) return false;
   return e.type === 'ゼミ' ? e.grade === yr : e.grade === yr;
 }
@@ -432,10 +455,13 @@ function matchesTerm(eTerm, sel) {
   if (eTerm && eTerm.startsWith(sel)) return true;
   return false;
 }
-function matchesType(e, t) {
-  if (t === null) return true;
-  if (t === 'other') return !e.type || !['基幹必修','基幹選択','言語','共通選択','資格','ゼミ'].includes(e.type);
-  return e.type === t;
+
+// ── 変更点②：複数選択対応のmatchesType
+function matchesType(e) {
+  if (selectedTypes === null) return true; // すべて
+  const key = e.type && ['基幹必修','基幹選択','言語','共通選択','資格','ゼミ'].includes(e.type)
+    ? e.type : 'other';
+  return selectedTypes.has(key);
 }
 
 function makeCard(entry, yr) {
@@ -475,7 +501,7 @@ function renderBody(yr, term) {
     html += `<tr><td class="day-label">${day}<br><span style="font-size:0.6rem;font-weight:400;color:#6a7f96;">曜日</span></td>`;
     PERIODS.forEach(period => {
       const entries = DATA.regular.filter(e =>
-        e.day === day && e.period === period && isVisible(e, yr) && matchesTerm(e.term, term) && matchesType(e, currentType)
+        e.day === day && e.period === period && isVisible(e, yr) && matchesTerm(e.term, term) && matchesType(e)
       );
       if (entries.length === 0) {
         html += `<td class="slot"><div class="empty-cell">—</div></td>`;
@@ -504,8 +530,8 @@ function renderSpecial(yr, term) {
   const odGrid = document.getElementById('ondemandGrid');
   const intGrid= document.getElementById('intensiveGrid');
 
-  const odItems  = DATA.ondemand.filter(e  => isVisible(e, yr) && matchesTerm(e.term, term) && matchesType(e, currentType));
-  const intItems = DATA.intensive.filter(e => isVisible(e, yr) && matchesTerm(e.term, term) && matchesType(e, currentType));
+  const odItems  = DATA.ondemand.filter(e  => isVisible(e, yr) && matchesTerm(e.term, term) && matchesType(e));
+  const intItems = DATA.intensive.filter(e => isVisible(e, yr) && matchesTerm(e.term, term) && matchesType(e));
 
   odSec.style.display  = odItems.length  ? '' : 'none';
   intSec.style.display = intItems.length ? '' : 'none';
@@ -516,7 +542,6 @@ function renderSpecial(yr, term) {
 function render() {
   renderBody(currentYear, currentTerm);
   renderSpecial(currentYear, currentTerm);
-  // NEWラベル説明文
   const lbl = document.getElementById('newLabelText');
   if (currentYear === 1) {
     lbl.textContent = '（2年生以上のタブで有効）';
@@ -542,21 +567,54 @@ function selectTerm(term) {
   render();
 }
 
+// ── 変更点③：複数選択のtoggleType
 const TYPE_KEYS = ['基幹必修','基幹選択','言語','共通選択','資格','ゼミ','その他'];
-function selectType(t) {
-  currentType = t;
-  // すべてボタン
-  document.getElementById('typeBtn-all').className =
-    'type-btn' + (t === null ? ' active-all' : '');
+
+function toggleType(t) {
+  if (t === null) {
+    // 「すべて」 → 全選択解除
+    selectedTypes = null;
+  } else {
+    if (selectedTypes === null) {
+      // 「すべて」状態から初めて選ぶ → Setを作成してその1つだけ選択
+      selectedTypes = new Set([t]);
+    } else {
+      if (selectedTypes.has(t)) {
+        selectedTypes.delete(t);
+        // 空になったらすべてに戻す
+        if (selectedTypes.size === 0) selectedTypes = null;
+      } else {
+        selectedTypes.add(t);
+      }
+    }
+  }
+  updateTypeButtons();
+  render();
+}
+
+// ── 変更点④：ボタン表示を複数選択対応で更新
+function updateTypeButtons() {
+  const isAll = selectedTypes === null;
+  const count = isAll ? 0 : selectedTypes.size;
+
+  // 「すべて」ボタン
+  const allBtn = document.getElementById('typeBtn-all');
+  allBtn.className = 'type-btn' + (isAll ? ' active-all' : '');
+  allBtn.innerHTML = isAll ? 'すべて' : `すべて <span class="filter-count-badge">${count}</span>`;
+
+  // ヒントテキスト更新
+  const hint = document.getElementById('filterHint');
+  hint.textContent = isAll ? '複数選択可' : `${count}種別選択中・「すべて」で解除`;
+
   // 各種別ボタン
   TYPE_KEYS.forEach(k => {
     const id = 'typeBtn-' + k;
     const btn = document.getElementById(id);
     if (!btn) return;
     const key = k === 'その他' ? 'other' : k;
-    btn.className = 'type-btn' + (t === key ? ' active-' + k : '');
+    const isActive = !isAll && selectedTypes.has(key);
+    btn.className = 'type-btn' + (isActive ? ' active-' + k : '');
   });
-  render();
 }
 
 // 初期化
